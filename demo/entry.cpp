@@ -86,9 +86,9 @@ inline void Render3DScene(){
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-Shader Shader2D("simple_2d.vert","simple_2d.frag");
 
 void DrawCrosshair(){
+	Shader Shader2D("simple_2d.vert","simple_2d.frag");
 	Shader2D.Use();
 	Shader2D.setVec3("Color", 1.0f, 1.0f, 1.0f); // 白色准心
 	glBindVertexArray(crosshairVAO);
