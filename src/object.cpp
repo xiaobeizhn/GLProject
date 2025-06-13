@@ -1,7 +1,6 @@
 ﻿//
 // Created by zhn on 25-6-11.
 //
-#include <iostream>
 #include "object.h"
 #include "camera.h"
 

@@ -3,6 +3,8 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
+#include "glad/glad.h"
 using namespace glm;
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
@@ -14,11 +16,11 @@ enum Camera_Movement{
 };
 
 // Default camera values
-const float YAW = -90.0f;
-const float PITCH = 0.0;
-const float SPEED = 5.0f;
-const float SENSITIVITY = 0.1f;
-const float ZOOM = 45.0f;
+inline constexpr float YAW = -90.0f;
+inline constexpr float PITCH = 0.0;
+inline constexpr float SPEED = 5.0f;
+inline constexpr float SENSITIVITY = 0.1f;
+inline constexpr float ZOOM = 45.0f;
 
 class Camera{
 public:

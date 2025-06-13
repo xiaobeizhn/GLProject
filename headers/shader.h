@@ -2,28 +2,14 @@
 #define SHADER_H
 
 #include<iostream>
-#include<fstream>
-#include<sstream>
 #include<string>
-using namespace std;
+#include<glad/glad.h>
 
-inline string readFileToString(const char* filePath) {
-	ifstream file;
-	string ret;
-	file.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-	try{
-		file.open(filePath);
-		stringstream buffer;
-		buffer << file.rdbuf();
-		file.close();
-		ret = buffer.str();
-		// cout<<"READ FROM : "<<filePath<<endl;
-		// cout<<ret<<endl;
-	}catch(std::ifstream::failure &e){
-		cout << "READ " << filePath << " ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ : " <<e.what()<< endl;
-	}
-	return ret;
-}
+#include "filesystem.h"
+using namespace std;
+using namespace glm;
+using namespace FileSystem;
+
 
 class Shader{
 	GLuint ID;
@@ -42,46 +28,46 @@ public:
 	void SetInt(const string& name, int value) const{
 		glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 	}
-	void setVec2(const std::string &name, const glm::vec2 &value) const {
+	void setVec2(const string &name, const vec2 &value) const {
 		glUniform2fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
 	}
 
-	void setVec2(const std::string &name, float x, float y) const {
+	void setVec2(const string &name, float x, float y) const {
 		glUniform2f(glGetUniformLocation(ID, name.c_str()), x, y);
 	}
 
-	void setVec3(const std::string &name, const glm::vec3 &value) const {
+	void setVec3(const string &name, const vec3 &value) const {
 		glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
 	}
 
-	void setVec3(const std::string &name, float x, float y, float z) const {
+	void setVec3(const string &name, float x, float y, float z) const {
 		glUniform3f(glGetUniformLocation(ID, name.c_str()), x, y, z);
 	}
 
-	void setVec4(const std::string &name, const glm::vec4 &value) const {
+	void setVec4(const string &name, const vec4 &value) const {
 		glUniform4fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
 	}
 
-	void setVec4(const std::string &name, float x, float y, float z, float w) const {
+	void setVec4(const string &name, float x, float y, float z, float w) const {
 		glUniform4f(glGetUniformLocation(ID, name.c_str()), x, y, z, w);
 	}
 
-	void setMat2(const std::string &name, const glm::mat2 &mat) const {
+	void setMat2(const string &name, const mat2 &mat) const {
 		glUniformMatrix2fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 	}
 
-	void setMat3(const std::string &name, const glm::mat3 &mat) const {
+	void setMat3(const string &name, const mat3 &mat) const {
 		glUniformMatrix3fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 	}
 
-	void setMat4(const std::string &name, const glm::mat4 &mat) const {
+	void setMat4(const string &name, const mat4 &mat) const {
 		glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 	}
 };
 
 inline Shader::Shader(const char* vertexCodePath, const char* fragmentCodePath){
-	string vertexCodeStr = "shaders/vertex/"+readFileToString(vertexCodePath);
-	string fragmentCodeStr = "shaders/fragment/"+readFileToString(fragmentCodePath);
+	string vertexCodeStr = readFileToString(VertShader(vertexCodePath));
+	string fragmentCodeStr = readFileToString(FragShader(fragmentCodePath));
 	const char* vertexCode = vertexCodeStr.c_str();
 	const char* fragmentCode = fragmentCodeStr.c_str();
 	// cout<<"C1\n"<<vertexCode<<endl<<"C2\n"<<fragmentCode<<endl;

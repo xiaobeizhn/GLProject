@@ -1,5 +1,5 @@
-#ifndef INPUT_SYSTEM_H
-#define INPUT_SYSTEM_H
+#ifndef INPUTSYSTEM_H
+#define INPUTSYSTEM_H
 
 #include <filesystem>
 #include <GLFW/glfw3.h>
@@ -133,4 +133,4 @@ namespace InputSystem
 	}
 }
 
-#endif //INPUT_SYSTEM_H
+#endif //INPUTSYSTEM_H

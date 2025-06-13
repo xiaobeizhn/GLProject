@@ -22,7 +22,7 @@ Camera camera;
 int shadercase;
 GLuint backFbo,backTexture;
 
-float crosshairVertices[]={
+constexpr float crosshairVertices[]={
 	-0.02f, 0.0f,   // 水平线左端点
 	 0.02f, 0.0f,   // 水平线右端点
 	 0.0f, -0.02f,  // 垂直线下端点
@@ -31,7 +31,6 @@ float crosshairVertices[]={
 
 GLuint crosshairVAO, crosshairVBO;
 
-const char* modelPath[] = {"assets/models/Cube.obj", "assets/models/Monkey.obj", "assets/models/res.obj"};
 
 vector<std::unique_ptr<Object>> objPool;
 
@@ -209,11 +208,11 @@ int main(){
 	glBindVertexArray(0);
 
 	glViewport(0, 0,WindowState::WINDOW_WIDTH,WindowState::WINDOW_HEIGHT);
-	objPool.emplace_back(new Object("Cube", "Friend",vec3(-2.0f, 0.0f, -8.0f), vec3(1.0f, 0.2f, 0.2f), modelPath[0],
+	objPool.emplace_back(new Object("Cube", "Friend",vec3(-2.0f, 0.0f, -8.0f), vec3(1.0f, 0.2f, 0.2f), FileSystem::modelPath[0],
 	                                  1.0f));
-	objPool.emplace_back(new Object("Monkey","Enemy",vec3(2.0f, 0.0f, -6.0f), vec3(0.5f, 0.0f, 0.5f), modelPath[1],
+	objPool.emplace_back(new Object("Monkey","Enemy",vec3(2.0f, 0.0f, -6.0f), vec3(0.5f, 0.0f, 0.5f), FileSystem::modelPath[1],
 	                               1.0f));
-	objPool.emplace_back(new Object("Res","Friend",vec3(0.0f, 2.0f, -10.0f), vec3(0.0f, 0.3f, 0.3f), modelPath[2],
+	objPool.emplace_back(new Object("Res","Friend",vec3(0.0f, 2.0f, -10.0f), vec3(0.0f, 0.3f, 0.3f), FileSystem::modelPath[2],
 								   1.0f));
 	// cout<<"OBJPOOL SIZE"<<objPool.size()<<endl;
 	while (!glfwWindowShouldClose(window)){

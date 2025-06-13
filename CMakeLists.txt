@@ -15,6 +15,7 @@ foreach (file ${files})
             src/object.cpp
             src/stb_image_implementation.cpp
             src/model.cpp
+            src/camera.cpp
             ${file} )
     target_link_libraries(${file_name} ${PROJECT_SOURCE_DIR}/lib/glfw3.lib)
     target_link_libraries(${file_name} ${PROJECT_SOURCE_DIR}/lib/assimp-vc143-mt.lib)
