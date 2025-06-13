@@ -2,7 +2,6 @@
 // Created by zhn on 25-6-11.
 //
 #include "object.h"
-#include "camera.h"
 
 Object::Object(string _name, string _tag, vec3 _pos, vec3 _color, const char* _model,float _radius):
 	name(move(_name)),
