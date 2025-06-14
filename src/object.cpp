@@ -25,7 +25,7 @@ void Object::Draw_simply(Shader& shader, Camera& camera, bool op){
 	);
 	// 传递变换矩阵
 	shader.SetMat4("projection", projectionMatrix);
-	shader.SetMat4("vie", viewMatrix);
+	shader.SetMat4("view", viewMatrix);
 	shader.SetMat4("model", modelMatrix);
 
 	// 传递光照参数

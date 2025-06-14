@@ -20,8 +20,9 @@ using namespace glm;
 
 Camera camera;
 int shadercase;
+vector<std::unique_ptr<Object>> objPool;
 
-namespace RenderBuffer
+namespace RenderObject
 {
 	constexpr float crosshairVertices[]={
 		-0.02f, 0.0f,   // 水平线左端点
@@ -60,56 +61,39 @@ namespace RenderBuffer
 		glBindVertexArray(quadVAO);
 		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
 		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
 		glBindVertexArray(0);
 	}
 
 	//初始化帧缓冲
-	GLuint backFBO,backTexture;
-	inline void BackRenderBufferInit(){
+	GLuint backFBO,backRBO,backTexture;
+	inline void BackFrameBufferInit(){
+		//帧缓冲
 		glGenFramebuffers(1,&backFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, backFBO);
+		//颜色纹理
 		glGenTextures(1,&backTexture);
 		glBindTexture(GL_TEXTURE_2D, backTexture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,  WindowState::WINDOW_WIDTH, WindowState::WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_INT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glBindFramebuffer(GL_FRAMEBUFFER, backFBO);
+
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, backTexture, 0);
+		//渲染缓冲对象
+		glGenRenderbuffers(1, &backRBO);
+		glBindRenderbuffer(GL_RENDERBUFFER, backRBO);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WindowState::WINDOW_WIDTH, WindowState::WINDOW_HEIGHT);
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, backRBO);
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 			std::cerr << "Framebuffer not complete!" << std::endl;
 		}
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 }
-
-
-
-vector<std::unique_ptr<Object>> objPool;
-
-// class Light : public Object{
-// };
-
-// class Enemy : Object{
-// 	inline static const float minX = -30.0f;
-// 	inline static const float maxX = 30.0f;
-// 	inline static const float minY = 0.0f;
-// 	inline static const float maxY = 20.0f;
-// 	inline static const float minZ = -5.0f;
-// 	inline static const float maxZ = -20.0f;
-//
-// public:
-// 	Enemy(vec3 _pos, vec3 _color, const char* _path, string _name):
-// 		Object(_pos, _color, _path, _name, "Enemy"){
-// 	};
-// 	void RandomMove() override{
-// 		float x = rand() % 100 / 100.0f * (maxX - minX) + minX;
-// 		float y = rand() % 100 / 100.0f * (maxY - minY) + minY;
-// 		float z = rand() % 100 / 100.0f * (maxZ - minZ) + minZ;
-// 		MoveTo(x, y, z);
-// 	}
-// };
-
 inline void Render3DScene(){
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -142,7 +126,7 @@ void DrawCrosshair(){
 	Shader Shader2D("simple_2d.vert","simple_2d.frag");
 	Shader2D.Use();
 	Shader2D.SetVec3("Color", 1.0f, 1.0f, 1.0f); // 白色准心
-	glBindVertexArray(RenderBuffer::crosshairVAO);
+	glBindVertexArray(RenderObject::crosshairVAO);
 	glDrawArrays(GL_LINES, 0, 4);
 	glBindVertexArray(0);
 }
@@ -151,28 +135,27 @@ inline void Render2DScene(){
 	DrawCrosshair();
 }
 
-
 inline void Draw3DScene(){
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	Shader screenShader("simple_2d.vert", "texture_2d.frag");  // 新建屏幕着色器
 	screenShader.Use();
-	glBindVertexArray(RenderBuffer::quadVAO);
-	glBindTexture(GL_TEXTURE_2D, RenderBuffer::backTexture);
-	glDraw
+	screenShader.SetInt("ourTexture", 0);
+	glBindVertexArray(RenderObject::quadVAO);
+	glDisable(GL_DEPTH_TEST);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, RenderObject::backTexture);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glBindVertexArray(0);
-	glEnable(GL_DEPTH_TEST);
 }
 
 inline void RenderFrame(){
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-	glBindFramebuffer(GL_FRAMEBUFFER, backFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, RenderObject::backFBO);
 	Render3DScene();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	Draw3DScene();
-	glDisable(GL_DEPTH_TEST);
 	// Draw2DScene();
-	glClear(GL_COLOR_BUFFER_BIT);
 	DrawCrosshair();
 	glEnable(GL_DEPTH_TEST);
 
@@ -244,11 +227,11 @@ int main(){
 	glViewport(0, 0,WindowState::WINDOW_WIDTH,WindowState::WINDOW_HEIGHT);
 
 	InputSystem::Init(window);
-	RenderBuffer::CrosshairInit();
-	RenderBuffer::QuadInit();
-	RenderBuffer::BackRenderBufferInit();
+	RenderObject::CrosshairInit();
+	RenderObject::QuadInit();
+	RenderObject::BackFrameBufferInit();
 
-	objPool.emplace_back(new Object("Cube", "Friend",vec3(-2.0f, 0.0f, -8.0f), vec3(1.0f, 0.2f, 0.2f), FileSystem::modelPath[0],
+	objPool.emplace_back(new Object("Cube", "Friend",vec3(-2.0f, 0.0f, -8.0f), vec3(0.2f, 0.5f, 0.5f), FileSystem::modelPath[0],
 	                                  1.0f));
 	objPool.emplace_back(new Object("Monkey","Enemy",vec3(2.0f, 0.0f, -6.0f), vec3(0.5f, 0.0f, 0.5f), FileSystem::modelPath[1],
 	                               1.0f));

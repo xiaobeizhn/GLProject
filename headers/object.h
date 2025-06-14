@@ -26,6 +26,7 @@ struct BoundingSphere {
 	float radius;
 };
 
+
 class Object{
 public:
 	virtual ~Object() = default;
@@ -54,5 +55,28 @@ public:
 
 	virtual void RandomMove();
 };
+
+// class Light : public Object{
+// };
+
+// class Enemy : Object{
+// 	inline static const float minX = -30.0f;
+// 	inline static const float maxX = 30.0f;
+// 	inline static const float minY = 0.0f;
+// 	inline static const float maxY = 20.0f;
+// 	inline static const float minZ = -5.0f;
+// 	inline static const float maxZ = -20.0f;
+//
+// public:
+// 	Enemy(vec3 _pos, vec3 _color, const char* _path, string _name):
+// 		Object(_pos, _color, _path, _name, "Enemy"){
+// 	};
+// 	void RandomMove() override{
+// 		float x = rand() % 100 / 100.0f * (maxX - minX) + minX;
+// 		float y = rand() % 100 / 100.0f * (maxY - minY) + minY;
+// 		float z = rand() % 100 / 100.0f * (maxZ - minZ) + minZ;
+// 		MoveTo(x, y, z);
+// 	}
+// };
 
 #endif //OBJECT_H
