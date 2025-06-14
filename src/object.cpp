@@ -24,14 +24,14 @@ void Object::Draw_simply(Shader& shader, Camera& camera, bool op){
 		100.0f
 	);
 	// 传递变换矩阵
-	shader.setMat4("projection", projectionMatrix);
-	shader.setMat4("vie", viewMatrix);
-	shader.setMat4("model", modelMatrix);
+	shader.SetMat4("projection", projectionMatrix);
+	shader.SetMat4("vie", viewMatrix);
+	shader.SetMat4("model", modelMatrix);
 
 	// 传递光照参数
-	shader.setVec3("lightPos", 5.0f, 5.0f, -3.0f);
-	shader.setVec3("viewPos", camera.Position);
-	shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+	shader.SetVec3("lightPos", 5.0f, 5.0f, -3.0f);
+	shader.SetVec3("viewPos", camera.Position);
+	shader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
 	if(op){
 		GLuint texture;
 		glGenTextures(1, &texture);
@@ -52,7 +52,7 @@ void Object::Draw_simply(Shader& shader, Camera& camera, bool op){
 		}
 		stbi_image_free(data);
 	}else{
-		shader.setVec3("objectColor", this->color);
+		shader.SetVec3("objectColor", this->color);
 	}
 	model.Draw(shader);
 }

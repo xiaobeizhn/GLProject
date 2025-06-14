@@ -20,16 +20,68 @@ using namespace glm;
 
 Camera camera;
 int shadercase;
-GLuint backFbo,backTexture;
 
-constexpr float crosshairVertices[]={
-	-0.02f, 0.0f,   // 水平线左端点
-	 0.02f, 0.0f,   // 水平线右端点
-	 0.0f, -0.02f,  // 垂直线下端点
-	 0.0f,  0.02f   // 垂直线上端点
-};
+namespace RenderBuffer
+{
+	constexpr float crosshairVertices[]={
+		-0.02f, 0.0f,   // 水平线左端点
+		 0.02f, 0.0f,   // 水平线右端点
+		 0.0f, -0.02f,  // 垂直线下端点
+		 0.0f,  0.02f   // 垂直线上端点
+	};
+	GLuint crosshairVAO, crosshairVBO;
+	//初始化准心
+	inline void CrosshairInit() {
+		glGenVertexArrays(1, &crosshairVAO);
+		glGenBuffers(1, &crosshairVBO);
+		glBindVertexArray(crosshairVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, crosshairVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(crosshairVertices), crosshairVertices, GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
+		glEnableVertexAttribArray(0);
+		glBindVertexArray(0);
+	}
 
-GLuint crosshairVAO, crosshairVBO;
+	constexpr float quadVertices[] = {
+		// 只需要位置(x,y)
+		-1.0f,  1.0f,  // 左上
+		-1.0f, -1.0f,  // 左下
+		 1.0f, -1.0f,  // 右下
+
+		-1.0f,  1.0f,  // 左上
+		 1.0f, -1.0f,  // 右下
+		 1.0f,  1.0f   // 右上
+	};
+	GLuint quadVAO, quadVBO;
+	//初始化全屏四边形
+	inline void QuadInit() {
+		glGenVertexArrays(1, &quadVAO);
+		glGenBuffers(1, &quadVBO);
+		glBindVertexArray(quadVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
+		glEnableVertexAttribArray(0);
+		glBindVertexArray(0);
+	}
+
+	//初始化帧缓冲
+	GLuint backFBO,backTexture;
+	inline void BackRenderBufferInit(){
+		glGenFramebuffers(1,&backFBO);
+		glGenTextures(1,&backTexture);
+		glBindTexture(GL_TEXTURE_2D, backTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,  WindowState::WINDOW_WIDTH, WindowState::WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_INT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glBindFramebuffer(GL_FRAMEBUFFER, backFBO);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, backTexture, 0);
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+			std::cerr << "Framebuffer not complete!" << std::endl;
+		}
+	}
+}
+
 
 
 vector<std::unique_ptr<Object>> objPool;
@@ -58,7 +110,7 @@ vector<std::unique_ptr<Object>> objPool;
 // };
 
 inline void Render3DScene(){
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	if(shadercase == 0){
@@ -83,15 +135,14 @@ inline void Render3DScene(){
 		objPool[1]->Draw_simply(shader2,camera);
 		objPool[2]->Draw_simply(shader2,camera);
 	}
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 
 void DrawCrosshair(){
 	Shader Shader2D("simple_2d.vert","simple_2d.frag");
 	Shader2D.Use();
-	Shader2D.setVec3("Color", 1.0f, 1.0f, 1.0f); // 白色准心
-	glBindVertexArray(crosshairVAO);
+	Shader2D.SetVec3("Color", 1.0f, 1.0f, 1.0f); // 白色准心
+	glBindVertexArray(RenderBuffer::crosshairVAO);
 	glDrawArrays(GL_LINES, 0, 4);
 	glBindVertexArray(0);
 }
@@ -100,17 +151,31 @@ inline void Render2DScene(){
 	DrawCrosshair();
 }
 
-inline void RenderFramebufferTexture(){
 
+inline void Draw3DScene(){
+	glClear(GL_COLOR_BUFFER_BIT);
+	Shader screenShader("simple_2d.vert", "texture_2d.frag");  // 新建屏幕着色器
+	screenShader.Use();
+	glBindTexture(GL_TEXTURE_2D, backTexture);
+	glBindVertexArray(RenderBuffer::quadVAO);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glEnableVertexAttribArray(0);
+	glDraw
+	glBindVertexArray(0);
+	glEnable(GL_DEPTH_TEST);
 }
 
 inline void RenderFrame(){
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glBindFramebuffer(GL_FRAMEBUFFER, backFBO);
 	Render3DScene();
-	glClear(GL_COLOR_BUFFER_BIT );
-	RenderFramebufferTexture();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	Draw3DScene();
 	glDisable(GL_DEPTH_TEST);
-	Render2DScene();
+	// Draw2DScene();
+	glClear(GL_COLOR_BUFFER_BIT);
+	DrawCrosshair();
 	glEnable(GL_DEPTH_TEST);
 
 }
@@ -184,28 +249,10 @@ int main(){
 		cout << "Fail to initialize GLAD" << endl;
 		return -1;
 	}
-	//初始化帧缓冲
-	glGenFramebuffers(1,&backFbo);
-	glGenTextures(1,&backTexture);
-	glBindTexture(GL_TEXTURE_2D, backTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,  WindowState::WINDOW_WIDTH, WindowState::WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_INT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glBindFramebuffer(GL_FRAMEBUFFER, backFbo);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, backTexture, 0);
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		std::cerr << "Framebuffer not complete!" << std::endl;
-	}
+	RenderBuffer::CrosshairInit();
+	RenderBuffer::QuadInit();
+	RenderBuffer::BackRenderBufferInit();
 
-	//初始化准心
-	glGenVertexArrays(1, &crosshairVAO);
-	glGenBuffers(1, &crosshairVBO);
-	glBindVertexArray(crosshairVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, crosshairVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(crosshairVertices), crosshairVertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
-	glEnableVertexAttribArray(0);
-	glBindVertexArray(0);
 
 	glViewport(0, 0,WindowState::WINDOW_WIDTH,WindowState::WINDOW_HEIGHT);
 	objPool.emplace_back(new Object("Cube", "Friend",vec3(-2.0f, 0.0f, -8.0f), vec3(1.0f, 0.2f, 0.2f), FileSystem::modelPath[0],
