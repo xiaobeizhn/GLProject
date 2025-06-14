@@ -12,7 +12,7 @@
 #include "model.h"
 #include "shader.h"
 #include "camera.h"
-#include "inputsystem.h"
+#include "input_system.h"
 
 #include <iostream>
 // #include <vector>

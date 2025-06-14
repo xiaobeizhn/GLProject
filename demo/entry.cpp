@@ -8,7 +8,7 @@
 #include "model.h"
 #include "shader.h"
 #include "camera.h"
-#include "inputsystem.h"
+#include "input_system.h"
 #include "object.h"
 
 #include <iostream>
@@ -27,8 +27,8 @@ namespace RenderObject
 	constexpr float crosshairVertices[]={
 		-0.02f, 0.0f,   // 水平线左端点
 		 0.02f, 0.0f,   // 水平线右端点
-		 0.0f, -0.02f,  // 垂直线下端点
-		 0.0f,  0.02f   // 垂直线上端点
+		 0.0f, -0.03f,  // 垂直线下端点
+		 0.0f,  0.03f   // 垂直线上端点
 	};
 	GLuint crosshairVAO, crosshairVBO;
 	//初始化准心
@@ -231,11 +231,11 @@ int main(){
 	RenderObject::QuadInit();
 	RenderObject::BackFrameBufferInit();
 
-	objPool.emplace_back(new Object("Cube", "Friend",vec3(-2.0f, 0.0f, -8.0f), vec3(0.2f, 0.5f, 0.5f), FileSystem::modelPath[0],
+	objPool.emplace_back(new Object("Cube", "Friend",vec3(0.0f, 0.0f, 0.0f), vec3(0.2f, 0.5f, 0.5f), FileSystem::modelPath[0],
 	                                  1.0f));
 	objPool.emplace_back(new Object("Monkey","Enemy",vec3(2.0f, 0.0f, -6.0f), vec3(0.5f, 0.0f, 0.5f), FileSystem::modelPath[1],
 	                               1.0f));
-	objPool.emplace_back(new Object("Res","Friend",vec3(0.0f, 2.0f, -10.0f), vec3(0.0f, 0.3f, 0.3f), FileSystem::modelPath[2],
+	objPool.emplace_back(new Object("Res","Friend",vec3(-2.0f, 0.0f, -6.0f), vec3(0.0f, 0.3f, 0.3f), FileSystem::modelPath[2],
 								   1.0f));
 	// cout<<"OBJPOOL SIZE"<<objPool.size()<<endl;
 	while (!glfwWindowShouldClose(window)){
