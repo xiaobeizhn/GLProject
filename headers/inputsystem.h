@@ -129,6 +129,15 @@ namespace InputSystem
 				++ moveU;
 			}
 		}
+	}
+
+	inline void Init(GLFWwindow* window){
+		glfwSetMouseButtonCallback(window, MouseState::MouseButtonCallback);
+		glfwSetCursorPosCallback(window, CursorState::CursorPositionCallback);
+		glfwSetScrollCallback(window, ScrollState::ScrollCallback);
+		glfwSetKeyCallback(window, KeyboardState::KeyCallback);
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetFramebufferSizeCallback(window, WindowState::FrameBufferSizeCallback);
 
 	}
 }

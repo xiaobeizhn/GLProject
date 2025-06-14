@@ -156,10 +156,8 @@ inline void Draw3DScene(){
 	glClear(GL_COLOR_BUFFER_BIT);
 	Shader screenShader("simple_2d.vert", "texture_2d.frag");  // 新建屏幕着色器
 	screenShader.Use();
-	glBindTexture(GL_TEXTURE_2D, backTexture);
 	glBindVertexArray(RenderBuffer::quadVAO);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-	glEnableVertexAttribArray(0);
+	glBindTexture(GL_TEXTURE_2D, RenderBuffer::backTexture);
 	glDraw
 	glBindVertexArray(0);
 	glEnable(GL_DEPTH_TEST);
@@ -239,22 +237,17 @@ int main(){
 		return -1;
 	}
 	glfwMakeContextCurrent(window);
-	glfwSetMouseButtonCallback(window, MouseState::MouseButtonCallback);
-	glfwSetCursorPosCallback(window, CursorState::CursorPositionCallback);
-	glfwSetScrollCallback(window, ScrollState::ScrollCallback);
-	glfwSetKeyCallback(window, KeyboardState::KeyCallback);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSetFramebufferSizeCallback(window, WindowState::FrameBufferSizeCallback);
 	if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))){
 		cout << "Fail to initialize GLAD" << endl;
 		return -1;
 	}
+	glViewport(0, 0,WindowState::WINDOW_WIDTH,WindowState::WINDOW_HEIGHT);
+
+	InputSystem::Init(window);
 	RenderBuffer::CrosshairInit();
 	RenderBuffer::QuadInit();
 	RenderBuffer::BackRenderBufferInit();
 
-
-	glViewport(0, 0,WindowState::WINDOW_WIDTH,WindowState::WINDOW_HEIGHT);
 	objPool.emplace_back(new Object("Cube", "Friend",vec3(-2.0f, 0.0f, -8.0f), vec3(1.0f, 0.2f, 0.2f), FileSystem::modelPath[0],
 	                                  1.0f));
 	objPool.emplace_back(new Object("Monkey","Enemy",vec3(2.0f, 0.0f, -6.0f), vec3(0.5f, 0.0f, 0.5f), FileSystem::modelPath[1],
