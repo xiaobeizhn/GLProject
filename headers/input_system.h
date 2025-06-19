@@ -12,8 +12,8 @@ namespace InputSystem
 	inline double sensitivity = 0.05;
 	namespace WindowState
 	{
-		inline int WINDOW_WIDTH = 800;
-		inline int WINDOW_HEIGHT = 600;
+		inline int WINDOW_WIDTH = 1600;
+		inline int WINDOW_HEIGHT = 1200;
 		inline void FrameBufferSizeCallback(GLFWwindow* window, int width, int height){
 			glViewport(0, 0, width, height);
 		}

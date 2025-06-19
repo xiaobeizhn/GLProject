@@ -25,10 +25,10 @@ vector<std::unique_ptr<Object>> objPool;
 namespace RenderObject
 {
 	constexpr float crosshairVertices[]={
-		-0.02f, 0.0f,   // 水平线左端点
-		 0.02f, 0.0f,   // 水平线右端点
-		 0.0f, -0.03f,  // 垂直线下端点
-		 0.0f,  0.03f   // 垂直线上端点
+		-0.03f, 0.0f,   // 水平线左端点
+		 0.03f, 0.0f,   // 水平线右端点
+		 0.0f, -0.04f,  // 垂直线下端点
+		 0.0f,  0.04f   // 垂直线上端点
 	};
 	GLuint crosshairVAO, crosshairVBO;
 	//初始化准心
@@ -98,21 +98,18 @@ inline void Render3DScene(){
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	if(shadercase == 0){
-		Shader shader("simple_3d.vert", "simple_3d.frag");
-		for (const auto& obj : objPool){
-			obj->Draw_simply(shader,camera);
-		}
+		Shader shader1("texture_3d.vert", "texture_3d.frag");
+		objPool[0]->Draw_simply(shader1,camera,true);
+		Shader shader2("simple_3d.vert", "simple_3d.frag");
+		objPool[1]->Draw_simply(shader2,camera);
+		objPool[2]->Draw_simply(shader2,camera);
 	}else if(shadercase == 1){
-		Shader shader("simple_3d.vert", "smooth_3d.frag");
-		for (const auto& obj : objPool){
-			obj->Draw_simply(shader,camera);
-		}
+		Shader shader1("texture_3d.vert", "texture_3d.frag");
+		objPool[0]->Draw_simply(shader1,camera,true);
+		Shader shader2("simple_3d.vert", "smooth_3d.frag");
+		objPool[1]->Draw_simply(shader2,camera);
+		objPool[2]->Draw_simply(shader2,camera);
 	}else if(shadercase == 2){
-		Shader shader("simple_3d.vert", "cartoon_3d.frag");
-		for (const auto& obj : objPool){
-			obj->Draw_simply(shader,camera);
-		}
-	}else if(shadercase == 3){
 		Shader shader1("texture_3d.vert", "texture_3d.frag");
 		objPool[0]->Draw_simply(shader1,camera,true);
 		Shader shader2("simple_3d.vert", "cartoon_3d.frag");
@@ -125,7 +122,7 @@ inline void Render3DScene(){
 void DrawCrosshair(){
 	Shader Shader2D("simple_2d.vert","simple_2d.frag");
 	Shader2D.Use();
-	Shader2D.SetVec3("Color", 1.0f, 1.0f, 1.0f); // 白色准心
+	Shader2D.SetVec3("ObjectColor", 1.0f, 1.0f, 1.0f); // 白色准心
 	glBindVertexArray(RenderObject::crosshairVAO);
 	glDrawArrays(GL_LINES, 0, 4);
 	glBindVertexArray(0);
@@ -192,7 +189,7 @@ void ProcessInput(GLFWwindow* window){
 		}
 	}
 	if(MouseState::isRightClick){
-		shadercase=(shadercase + 1)%4;
+		shadercase=(shadercase + 1)%3;
 	}
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
 		exit(0);
@@ -231,12 +228,15 @@ int main(){
 	RenderObject::QuadInit();
 	RenderObject::BackFrameBufferInit();
 
-	objPool.emplace_back(new Object("Cube", "Friend",vec3(0.0f, 0.0f, 0.0f), vec3(0.2f, 0.5f, 0.5f), FileSystem::modelPath[0],
-	                                  1.0f));
-	objPool.emplace_back(new Object("Monkey","Enemy",vec3(2.0f, 0.0f, -6.0f), vec3(0.5f, 0.0f, 0.5f), FileSystem::modelPath[1],
-	                               1.0f));
-	objPool.emplace_back(new Object("Res","Friend",vec3(-2.0f, 0.0f, -6.0f), vec3(0.0f, 0.3f, 0.3f), FileSystem::modelPath[2],
-								   1.0f));
+	objPool.emplace_back(new Object("Cube", "Friend", vec3(0.0f, 0.0f, -4.0f),
+	                                vec3(0.2f, 0.5f, 0.5f), FileSystem::modelPath[0],
+	                                1.0f));
+	objPool.emplace_back(new Object("Monkey", "Enemy", vec3(0.0f, 0.0f, -6.0f),
+	                                vec3(0.5f, 0.0f, 0.5f), FileSystem::modelPath[1],
+	                                1.0f));
+	objPool.emplace_back(new Object("Res", "Friend", vec3(0.0f, -1.0f, -6.0f),
+	                                vec3(0.0f, 0.3f, 0.3f), FileSystem::modelPath[2],
+	                                1.0f));
 	// cout<<"OBJPOOL SIZE"<<objPool.size()<<endl;
 	while (!glfwWindowShouldClose(window)){
 		// 1. 重置帧相关状态（如delta值）
