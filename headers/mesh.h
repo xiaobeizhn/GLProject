@@ -34,6 +34,7 @@ public:
 	std::vector<unsigned int>indices;
     // std::vector<Texture>textures;
 	unsigned int VAO, VBO, EBO;
+	// vec3 aabbMin,aabbMax;
 
 	// Mesh(std::vector<Vertex>_vertices,std::vector<unsigned int>_indices,std::vector<Texture>_textures){
 	// 	this->vertices = _vertices;
@@ -50,6 +51,8 @@ public:
 	Mesh(Mesh&& o) noexcept
 	   :vertices(std::move(o.vertices)),
 		indices(std::move(o.indices)),
+		// aabbMax(std::move(o.aabbMax)),
+		// aabbMin(std::move(o.aabbMin)),
 		// textures(std::move(o.textures)),
 		VAO(o.VAO),VBO(o.VBO),EBO(o.EBO){ };
 

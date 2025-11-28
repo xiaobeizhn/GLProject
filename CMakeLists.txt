@@ -17,6 +17,7 @@ foreach (file ${files})
             src/model.cpp
             src/camera.cpp
             src/shader.cpp
+            src/my_math.cpp
             ${file} )
     target_link_libraries(${file_name} ${PROJECT_SOURCE_DIR}/lib/glfw3.lib)
     target_link_libraries(${file_name} ${PROJECT_SOURCE_DIR}/lib/assimp-vc143-mt.lib)

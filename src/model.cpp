@@ -4,6 +4,8 @@
 #include "model.h"
 
 Model::Model(const char* path){
+	aabbMax = vec3(-999,-999,-999);
+	aabbMin = vec3(999,999,999);
 	loadModel(path);
 }
 void Model::Draw(Shader& shader){
@@ -45,6 +47,13 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene){
 		_Normal.x = mesh->mNormals[i].x;
 		_Normal.y = mesh->mNormals[i].y;
 		_Normal.z = mesh->mNormals[i].z;
+
+		if(aabbMin.x > _Position.x)aabbMin.x = _Position.x;
+		if(aabbMax.x < _Position.x)aabbMax.x = _Position.x;
+		if(aabbMin.y > _Position.y)aabbMin.y = _Position.y;
+		if(aabbMax.y < _Position.y)aabbMax.y = _Position.y;
+		if(aabbMin.z > _Position.z)aabbMin.z = _Position.z;
+		if(aabbMax.z < _Position.z)aabbMax.z = _Position.z;
 
 		glm::vec2 _TexCoord(0.0f,0.0f);
 		if(mesh->mTextureCoords[0]){

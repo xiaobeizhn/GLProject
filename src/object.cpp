@@ -3,6 +3,8 @@
 //
 #include "object.h"
 
+#include "my_math.h"
+
 Object::Object(string _name, string _tag, vec3 _pos, vec3 _color, const char* _model,float _radius):
 	name(move(_name)),
 	tag(move(_tag)),
@@ -58,13 +60,14 @@ void Object::Draw_simply(Shader& shader, Camera& camera, bool op){
 }
 
 bool Object::IsShooted(Camera& camera)const{
-	vec4 viewSpacePos = camera.GetViewMatrix() *  vec4(pos, 1.0f);
-	vec3 clipSpacePos = static_cast<vec3>(viewSpacePos) / viewSpacePos.w;
-	cout<<clipSpacePos.x<<" "<<clipSpacePos.y<<" "<<clipSpacePos.z<<endl;
-	return (clipSpacePos.x * clipSpacePos.x + clipSpacePos.y * clipSpacePos.y <= shootedObject.radius * shootedObject.radius);
+	return RayAABBIntersection(camera.Position,camera.Front,pos+model.aabbMin,pos+model.aabbMax);
+	// vec4 viewSpacePos = camera.GetViewMatrix() *  vec4(pos, 1.0f);
+	// vec3 clipSpacePos = static_cast<vec3>(viewSpacePos) / viewSpacePos.w;
+	// cout<<clipSpacePos.x<<" "<<clipSpacePos.y<<" "<<clipSpacePos.z<<endl;
+	// return (clipSpacePos.x * clipSpacePos.x + clipSpacePos.y * clipSpacePos.y <= shootedObject.radius * shootedObject.radius);
 }
 
-void Object::RandomMove(){
+void Object::RandomMove() {
 	float x = rand() % 100 / 100.0f * (maxX - minX) + minX;
 	float y = rand() % 100 / 100.0f * (maxY - minY) + minY;
 	float z = rand() % 100 / 100.0f * (maxZ - minZ) + minZ;

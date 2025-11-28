@@ -34,6 +34,7 @@ class Model{
 	Mesh processMesh(aiMesh *mesh, const aiScene *scene);
 	// vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, string typeName);
 public:
+	vec3 aabbMin,aabbMax;
 	Model(const char* path);
 	void Draw(Shader& shader);
 };
